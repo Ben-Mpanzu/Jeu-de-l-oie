@@ -1,0 +1,242 @@
+########## Importer les modules necessaires ##############
+from tkinter import *
+from random import *
+from tkinter.font import Font
+import time
+##########################################################
+##########    Fonctions ##################################
+##########################################################
+def grille():
+    global game_state
+    if game_state['tour']==1:# affiche a chaque tour quel joueur joue
+        Canevas.create_rectangle(300,100,330,130,fill='green')
+        Canevas.create_text(315,115,text=('1'),fill="black",font=Font(family='Liberation Serif', size=10))
+        Canevas.create_rectangle(330,130,360,160,fill='red')
+        Canevas.create_rectangle(300,130,330,160,fill='red')
+        Canevas.create_rectangle(330,100,360,130,fill='red')
+    elif game_state['tour']==2:
+        Canevas.create_rectangle(330,100,360,130,fill='green')
+        Canevas.create_text(345,115,text=('2'),fill="black",font=Font(family='Liberation Serif', size=10))
+        Canevas.create_rectangle(330,130,360,160,fill='red')
+        Canevas.create_rectangle(300,130,330,160,fill='red')
+        Canevas.create_rectangle(300,100,330,130,fill='red')
+    elif game_state['tour']==3:
+        Canevas.create_rectangle(300,130,330,160,fill='green')
+        Canevas.create_text(315,145,text=('3'),fill="black",font=Font(family='Liberation Serif', size=10))
+        Canevas.create_rectangle(330,130,360,160,fill='red')
+        Canevas.create_rectangle(330,100,360,130,fill='red')
+        Canevas.create_rectangle(300,100,330,130,fill='red')
+    elif game_state['tour']==4:
+        Canevas.create_rectangle(330,130,360,160,fill='green')
+        Canevas.create_text(345,145,text=('4'),fill="black",font=Font(family='Liberation Serif', size=10))
+        Canevas.create_rectangle(300,130,330,160,fill='red')
+        Canevas.create_rectangle(330,100,360,130,fill='red')
+        Canevas.create_rectangle(300,100,330,130,fill='red')
+    for i in range(49):
+        Canevas.create_rectangle(300+LCase[i][1]*taille_case,200+LCase[i][0]*taille_case,300+LCase[i][1]*taille_case+taille_case,200+LCase[i][0]*taille_case+taille_case,fill=couleur[L[i]])#placement des rectangles
+        Canevas.create_text(300+LCase[i][1]*taille_case+taille_case/2,200+LCase[i][0]*taille_case+taille_case/2,text=(i+1),fill="black",font=Font(family='Liberation Serif', size=8))#placement des numéros de cases
+
+def pion1(x1,y1,x2,y2):
+   Canevas.create_oval(x1,y1,x2,y2,fill='pink',)
+   pass
+
+def pion2(x1,y1,x2,y2):
+    Canevas.create_oval(x1,y1,x2,y2,fill='orange')
+    pass
+
+def pion3(x1,y1,x2,y2):
+    Canevas.create_oval(x1,y1,x2,y2,fill='#DEB887')
+    pass
+
+def pion4(x1,y1,x2,y2):
+    Canevas.create_oval(x1,y1,x2,y2,fill='#F5F5DC')
+    pass
+
+def de():#fonction qui assure l'affichage du dè
+    global nombre,joueur,game_state
+    nombre=randint(1,6)
+    Canevas.create_rectangle(650,100,700,150,fill='white')
+    #generation d'un nombre aleatoire qui sera le nombre du dè
+    if nombre==1:#affichage du dè selon le nombre généré
+        Canevas.create_oval(672,122,678,128,fill='black')
+    elif nombre==2:
+        Canevas.create_oval(662,112,668,118,fill='black')
+        Canevas.create_oval(682,132,688,138,fill='black')
+    elif nombre==3:
+        Canevas.create_oval(660,110,666,116,fill='black')
+        Canevas.create_oval(672,122,678,128,fill='black')
+        Canevas.create_oval(684,134,690,140,fill='black')
+    elif nombre==4:
+        Canevas.create_oval(662,112,668,118,fill='black')
+        Canevas.create_oval(682,132,688,138,fill='black')
+        Canevas.create_oval(682,112,688,118,fill='black')
+        Canevas.create_oval(662,132,668,138,fill='black')
+    elif nombre==5:
+        Canevas.create_oval(660,110,666,116,fill='black')
+        Canevas.create_oval(684,110,690,116,fill='black')
+        Canevas.create_oval(672,122,678,128,fill='black')
+        Canevas.create_oval(660,134,666,140,fill='black')
+        Canevas.create_oval(684,134,690,140,fill='black')
+    elif nombre==6:
+        Canevas.create_oval(662,107,668,113,fill='black')
+        Canevas.create_oval(682,137,688,143,fill='black')
+        Canevas.create_oval(682,107,688,113,fill='black')
+        Canevas.create_oval(662,122,668,128,fill='black')
+        Canevas.create_oval(682,122,688,128,fill='black')
+        Canevas.create_oval(662,137,668,143,fill='black')
+    joueur = game_state['tour']
+    game_state[joueur]+=nombre # calcul de combien le joueur avance de case en fonction du resultat du dé
+
+    if game_state[joueur]>49:# si l'emplacemt de joueur + le dé est supperieur a la derniere case, il avance jusqu'a la derniere et recule du reste
+        game_state[joueur]=49-(game_state[joueur]-49)
+
+    #######regles######
+    game_state[joueur]=game_state[joueur]+regles[L[game_state[joueur]-1]]# il va chercher l'indice de game_state[joueur] dans L[], puis avec l'indice de L[], il va chercher dans regles et soit il va avancer de 2 ou reculer de 3
+    if L[game_state[joueur]-1]!=2: # si l'indice de L[game_state[joueur]] n'est pas egale a 2 alors on change de joueur sinon ca veut dire qu'un pion est sur une case rejouer donc n'execute pas le changement de joueur
+        joueur+=1 # change de joueur
+    ###################
+
+
+
+    if joueur==5: # si joueur devient 5, il redevient 1
+        joueur=1
+
+    game_state['tour']=joueur # donne le tour au prochain joueur
+    print(joueur)
+
+
+
+    Canevas.delete('tour') # efface le canevas avec un tags='tour' a chaque tour de joueur, ligne 13
+    afficher()
+    #deplacement1()
+    gagner()
+
+def cliquer(lancer):
+    # lancer affichage dés
+    # deplace pion (si 1 ou 2, NumPion+ndés case ex 15+6=21)
+    # pour deplacer pion sur case 21
+    # regarder dans L et appliquer l'effet
+    # lancer une fonction Gagné
+    # changer tour du joueur
+    pass
+
+def gagner():
+    global game_state
+    if game_state[1]==49: # lorsque le pion 1 est a la case 49 alors
+        Canevas.create_text(500,160,text=('le joueur pion 1 a gagné'),fill="black",font=Font(family='Liberation Serif', size=15))
+    elif game_state[2]==49: # lorsque le pion 2 est a la case 49 alors
+        Canevas.create_text(500,160,text=('le joueur pion 2 a gagné'),fill="black",font=Font(family='Liberation Serif', size=15))
+    elif game_state[3]==49: # lorsque le pion 3 est a la case 49 alors
+        Canevas.create_text(500,160,text=('le joueur pion 3 a gagné'),fill="black",font=Font(family='Liberation Serif', size=15))
+    elif game_state[4]==49: # lorsque le pion 4 est a la case 49 alors
+        Canevas.create_text(500,160,text=('le joueur pion 4 a gagné'),fill="black",font=Font(family='Liberation Serif', size=15))
+
+    pass
+
+def lancer(event):#fonction qui permet de declencher la fonction dè
+    gagner()
+    if game_state[1]==49 or game_state[2]==49 or game_state[3]==49 or game_state[4]==49: # si l'un des joueurs a gagne on peut plus lancer le dé
+        pass
+    elif event.x>510 and event.x<590 and event.y>100 and event.y<130:#si le clic est dans la zone defini par le if la fonction dè s'active
+        de()
+
+
+
+def afficher():
+    global game_state
+    grille() # redessine les cases de la grille quand chaque joueur avance
+
+    x1=(game_state[1]-1)%7
+    x2=(game_state[2]-1)%7
+    x3=(game_state[3]-1)%7
+    x4=(game_state[4]-1)%7
+    y1=(game_state[1]-1)//7
+    y2=(game_state[2]-1)//7
+    y3=(game_state[3]-1)//7
+    y4=(game_state[4]-1)//7
+
+    if (y1%2!=0):# lorsque y n'est pas paire on recule
+        x1=6-x1
+    if (y2%2!=0):# lorsque y n'est pas paire on recule
+        x2=6-x2
+    if (y3%2!=0):# lorsque y n'est pas paire on recule
+        x3=6-x3
+    if (y4%2!=0):# lorsque y n'est pas paire on recule
+        x4=6-x4
+
+
+    x1*=taille_case
+    x2*=taille_case
+    x3*=taille_case
+    x4*=taille_case
+    y1*=taille_case
+    y2*=taille_case
+    y3*=taille_case
+    y4*=taille_case
+
+    pion1(300+x1,560-y1,330+x1,590-y1)#coord du pion : 1 pion1(300+taille_case/2+x4,170+taille_case*6.5-y4,300+taille_case+x4,170+taille_case*7-y4)
+    Canevas.create_text(315+x1,575-y1,text='1',fill='black')#num du pion 1
+
+    pion2(330+x2,560-y2,360+x2,590-y2)# coord du pion : 2 pion2(300+taille_case/2+x2,200+taille_case*6.5-y2,300+taille_case+x2,200+taille_case*7-y2)
+    Canevas.create_text(345+x2,575-y2,text='2',fill='black')#num du pion 2
+
+    pion3(300+x3,590-y3,330+x3,620-y3)#coord du pion 3 : pion3(300+x3,230+(taille_case*6)-y3,300+(taille_case/2)+x3,230+(taille_case*6.5)-y3)
+    Canevas.create_text(315+x3,605-y3,text='3',fill='black')#num du pion 3
+
+    pion4(330+x4,590-y4,360+x4,620-y4)#coord du pion : 4 pion4(300+taille_case/2+x4,170+taille_case*6.5-y4,300+taille_case+x4,170+taille_case*7-y4)
+    Canevas.create_text(345+x4,605-y4,text='4',fill='black')#num du pion 4
+
+    Canevas.update()# raffrechie la page
+
+
+
+##########################################################
+##########    Variables #################################
+taille_case=60
+regles=[0,2,0,-3,0,0]
+regle=['rien','avancer de 2 cases','rejouer','reculer de 3 cases','Fin','Début']
+LCase=[[6,0],[6,1],[6,2],[6,3],[6,4],[6,5],[6,6]
+      ,[5,6],[5,5],[5,4],[5,3],[5,2],[5,1],[5,0]
+      ,[4,0],[4,1],[4,2],[4,3],[4,4],[4,5],[4,6]
+      ,[3,6],[3,5],[3,4],[3,3],[3,2],[3,1],[3,0]
+      ,[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,6]
+      ,[1,6],[1,5],[1,4],[1,3],[1,2],[1,1],[1,0]
+      ,[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6]]
+
+couleur=['white','purple','red','yellow','green','blue'] # couleur des cases en fonction des regles
+L=[5,1,0,0,2,0,1,0,0,2,0,3,0,0,1,2,0,0,3,0,1,0,2,0,3,0,1,0,2,0,3,0,0,1,3,2,0,0,2,0,1,3,0,1,0,2,1,0,4] #indice pour les régles
+
+game_state = {
+    1: 1,
+    2: 1,
+    3: 1,
+    4: 1,
+    'tour': 1
+}
+
+#########################################################
+########## Interface graphique ##########################
+##########################################################
+Mafenetre = Tk()
+Mafenetre.title("Jeux de l'oie")
+Canevas = Canvas(Mafenetre,width=1000,height=1000,bg ='white')
+Canevas.pack()
+font = Font(family='Liberation Serif', size=10) # création d'une police pour l'affichage du texte
+Canevas.create_rectangle(510,100,590,130,fill='white')
+Canevas.create_text(550,115,text=('lancer le dè'),fill="red",font=Font(family='Liberation Serif', size=10))
+for k in range(5):
+    Canevas.create_rectangle(50,200+50*k,80,230+50*k,fill=couleur[k])
+    Canevas.create_text(150,215+50*k,text=(regle[k]),fill="black",font=Font(family='Liberation Serif', size=10))
+#image = pion1(300,560,330,590)#coord du pion 1 : pion1(300+x1,200+(taille_case*6)-y1,300+(taille_case/2)+x1,200+(taille_case*6.5)-y1
+###########################################################
+########### Receptionnaire d'évènement ####################
+###########################################################
+Canevas.bind_all('<Button-1>',lancer)
+#Canevas.bind_all('<Button-3>',deplacement1)
+##########################################################
+############# Programme principal ########################
+##########################################################
+afficher()
+#deplacement1()
+###################### FIN ###############################
+Mafenetre.mainloop()
